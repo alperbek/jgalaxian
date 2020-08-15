@@ -9,27 +9,55 @@ base: core18
 
 apps:
   jgalaxian:
-    command: bash -c "${SNAP}/usr/lib/jvm/java-8-openjdk-${SNAP_ARCH}/bin/java -version ; ${SNAP}/usr/lib/jvm/java-8-openjdk-${SNAP_ARCH}/bin/java -Djava.util.prefs.userRoot=\"$SNAP_USER_DATA\" -jar $SNAP/jar/jgalaxian-1.0-SNAPSHOT.jar $*"
+    command: usr/bin/jg-snap
     environment:
       # pulseaudio
       LD_LIBRARY_PATH: ${SNAP}/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/pulseaudio
+      ALSA_CONFIG_PATH: ${SNAP}/etc/asound.conf
       # Needed for fontconfig
       XDG_DATA_HOME: ${SNAP}/usr/share
       FONTCONFIG_PATH: ${SNAP}/etc/fonts/config.d
       FONTCONFIG_FILE: ${SNAP}/etc/fonts/fonts.conf
-    plugs: [x11,pulseaudio]
+    plugs: [x11,pulseaudio,audio-playback]
+    #extensions: [ gnome-3-28 ]
+
+layout:
+  /usr/lib/$SNAPCRAFT_ARCH_TRIPLET/alsa-lib:
+    bind: $SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/alsa-lib
 
 parts:
+  alsa-pulseaudio:
+    plugin: dump
+    source: .
+    override-pull: |
+      mkdir etc -p
+      cat > etc/asound.conf <<EOF
+      pcm.!default {
+          type pulse
+          fallback "sysdefault"
+          hint {
+              show on
+              description "Default ALSA Output (currently PulseAudio Sound Server)"
+          }
+      }
+      ctl.!default {
+          type pulse
+          fallback "sysdefault"
+      }
+      EOF
+
   jgalaxian:
     plugin: maven
     source-type: local
     source: .
     build-packages:
-      - openjdk-8-jdk
+      - openjdk-11-jdk
     stage-packages:
-      - openjdk-8-jdk
+      - openjdk-11-jdk
       - libpulse0
+      - libasound2-plugins
       - x11-utils
     organize:
       ${SNAPCRAFT_PART_BUILD}/target/dep-jars/AudioCue-master-ddd83f721d-1.jar: jar/dep-jars/AudioCue-master-ddd83f721d-1.jar
+      ${SNAPCRAFT_PART_BUILD}/jg-snap: usr/bin/jg-snap
 
