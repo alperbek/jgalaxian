@@ -19,9 +19,7 @@ With `apt`, first download the package [deb
 package](https://github.com/jsseidel/jgalaxian/releases), and then `sudo apt
 install ./jgalaxian_18.04_1.0.0_amd64.deb`.
 
-~~Or by snap: `sudo snap install jgalaxian`.~~
-
-NOTE: JGalaxian in the snap store has been made private because the sound stopped working [Issue #13](https://github.com/jsseidel/jgalaxian/issues/13).
+Or by snap: `sudo snap install jgalaxian`.
 
 To adjust the scaling either:
 
